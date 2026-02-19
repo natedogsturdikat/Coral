@@ -163,7 +163,7 @@ LFOTremoloStarterv7AudioProcessorEditor::LFOTremoloStarterv7AudioProcessorEditor
     }
     //helper for pitch sliders
     juce::Colour pitchPurple(0xff7fb3ff);
-    const double pitchDefaults[] = { -12, -5, 7, 12 }
+    const double pitchDefaults[] = { -12, -5, 7, 12 };
     for (int i = 0; i < 4; ++i) {
         voiceUIs[i].pitchSlider.setRange(-12, 12, 1);
         voiceUIs[i].pitchSlider.setSliderStyle(juce::Slider::Rotary);
