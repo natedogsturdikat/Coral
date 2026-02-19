@@ -52,6 +52,28 @@ public:
     void setupVoiceLabels(int voiceIndex, const juce::String& labelText);
 
 private:
+    // ========== HELPER FUNCTION DECLARATIONS ==========
+    // Parameter getters
+    juce::AudioParameterFloat* getVoiceGainParam(int voiceIndex);
+    juce::AudioParameterFloat* getVoicePanParam(int voiceIndex);
+    juce::AudioParameterFloat* getVoicePitchParam(int voiceIndex);
+    juce::AudioParameterFloat* getPitchEnabledParam(int voiceIndex);
+    juce::AudioParameterFloat* getMuteParam(int voiceIndex);
+    
+    // State getters/setters
+    bool getVoiceMutedState(int voiceIndex);
+    void setVoiceMuted(int voiceIndex, bool muted);
+    
+    // UI update helpers
+    void initializeVoiceUI(int voiceIndex, const juce::String& voiceName);
+    void updatePanPitchView();
+    void refreshMuteUI();
+    // ========== END HELPERS ==========
+
+    LFOTremoloStarterv7AudioProcessor& audioProcessor;
+    
+    // UI Components
+    std::array<VoiceUI, 4> voiceUIs;  // 0=Bass, 1=Tenor, 2=Alto, 3=Soprano
     //chorus section sliders:
     juce::Slider LFOrate;    
     juce::Slider LFOdepth;
@@ -77,14 +99,6 @@ private:
     juce::Rectangle<int> area;
     
     //voice section sliders:
-        // Helper to get parameter pointer for a voice
-    juce::AudioParameterFloat* getVoiceGainParam(int voiceIndex);
-    juce::AudioParameterFloat* getVoicePanParam(int voiceIndex);
-    juce::AudioParameterFloat* getVoicePitchParam(int voiceIndex);
-    juce::AudioParameterFloat* getPitchEnabledParam(int voiceIndex);
-    juce::AudioParameterFloat* getMuteParam(int voiceIndex);
-    bool getVoiceMutedState(int voiceIndex);
-    void setVoiceMuted(int voiceIndex, bool muted);
 
     /*
     //bass
