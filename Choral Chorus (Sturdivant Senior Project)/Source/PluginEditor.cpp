@@ -109,196 +109,73 @@ LFOTremoloStarterv7AudioProcessorEditor::LFOTremoloStarterv7AudioProcessorEditor
 
 //==============================================================================    
     //voice section sliders:
+
+    //helper to construct sliders
+    auto setupVoiceSlider = [this](juce::Slider& slider, bool isGain) {
+      slider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+      slider.addListener(this);
+      addAndMakeVisible(slider);
     
-    //bass
-    // Bass Gain Fader
-    bassGainSlider.setSliderStyle(juce::Slider::LinearVertical); //fader style as opposed to rotary pot style
-    //bassGainSlider.setRange(0.0, 1.0, 0.01);
-    bassGainSlider.setRange(-60.0, 6.0, 0.01); //dB range
-    bassGainSlider.setNumDecimalPlacesToDisplay(1);
-    bassGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 26); //(originally 60,20)
-    bassGainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-    bassGainSlider.addListener(this);
-    addAndMakeVisible(bassGainSlider);
-
-    bassGainLabel.setText("Gain", juce::dontSendNotification);
-    bassGainLabel.attachToComponent(&bassGainSlider, false);
-    bassGainLabel.setJustificationType(juce::Justification::centredTop);
-    addAndMakeVisible(bassGainLabel);
-
-    // Bass Pan Rotary
-    bassPanSlider.setSliderStyle(juce::Slider::Rotary);
-    bassPanSlider.setRange(0.0, 1.0, 0.01);  // 0 = Left, 1 = Right
-    bassPanSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 45, 20);//originally 45, 15
-    bassPanSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack); //make textbox outline transparent
-    bassPanSlider.setTextValueSuffix(""); // optional
-    bassPanSlider.addListener(this);
-    addAndMakeVisible(bassPanSlider);
-
-    //bassPanLabel.setText("Pan", juce::dontSendNotification);
-    bassPanLabel.setText(showPitchView ? "Pitch" : "Pan", juce::dontSendNotification);
-    bassPanLabel.attachToComponent(&bassPanSlider, false);
-    bassPanLabel.setJustificationType(juce::Justification::centredTop);
-    addAndMakeVisible(bassPanLabel);
+      if (isGain) {
+          slider.setSliderStyle(juce::Slider::LinearVertical);
+          slider.setRange(-60.0, 6.0, 0.01);
+          slider.setNumDecimalPlacesToDisplay(1);
+          slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 26);
+      } else {
+          slider.setSliderStyle(juce::Slider::Rotary);
+          slider.setRange(0.0, 1.0, 0.01);
+          slider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 45, 20);
+      }
     
-    // Bass Pitch Toggle Button
-    bassPitchToggle.setButtonText("Shift"); //"Pitch Shift" and "transpose" too large for textbox, settled on shift
-    bassPitchToggle.setClickingTogglesState(true); // Enable toggle behavior
-    bassPitchToggle.addListener(this); 
-    addAndMakeVisible(bassPitchToggle);
+      slider.setLookAndFeel(&customLookAndFeel);
+    };
+    //helper to construct labels
+    auto setupVoiceLabel = [](juce::Label& label, const juce::String& text) {
+        label.setText(text, juce::dontSendNotification);
+        label.setColour(juce::Label::textColourId, juce::Colours::white);
+        label.setFont(juce::Font(18.0f));
+        label.setJustificationType(juce::Justification::centredTop);
+    };
+    //helper for toggle buttons
+    auto setupVoiceButton = [this](juce::TextButton& button, const juce::String& text, bool isToggle = true) {
+        button.setButtonText(text);
+        button.setClickingTogglesState(isToggle);
+        button.addListener(this);
+        addAndMakeVisible(button);
     
-    //Bass Section label
-    bassSectionLabel.setButtonText("Bass");
-    bassSectionLabel.setClickingTogglesState(true);
-    bassSectionLabel.addListener(this);
-
-    // match label
-    bassSectionLabel.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
-    bassSectionLabel.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
-    bassSectionLabel.setColour(juce::TextButton::textColourOffId, juce::Colours::white);
-    bassSectionLabel.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    addAndMakeVisible(bassSectionLabel);
+        if (!isToggle) {  // Section label styling
+            button.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
+            button.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
+            button.setColour(juce::TextButton::textColourOffId, juce::Colours::white);
+            button.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
+        }
+    };
+    //loop that initializes all four voices
+    const juce::String voiceNames[] = { "Bass", "Tenor", "Alto", "Soprano" };
+    for (int i = 0; i < 4; ++i) {
+        setupVoiceSlider(voiceUIs[i].gainSlider, true);
+        setupVoiceSlider(voiceUIs[i].panSlider, false);
+        setupVoiceLabel(voiceUIs[i].gainLabel, "Gain");
+        setupVoiceLabel(voiceUIs[i].panLabel, voiceNames[i]);
     
-    //Tenor
-    // Tenor Gain Fader
-    tenorGainSlider.setSliderStyle(juce::Slider::LinearVertical);
-    //tenorGainSlider.setRange(0.0, 1.0, 0.01);
-    tenorGainSlider.setRange(-60.0, 6.0, 0.01);
-    tenorGainSlider.setNumDecimalPlacesToDisplay(1);
-    tenorGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 26);
-    tenorGainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-    tenorGainSlider.addListener(this);
-    addAndMakeVisible(tenorGainSlider);
-    
-    tenorGainLabel.setText("Gain", juce::dontSendNotification);
-    tenorGainLabel.attachToComponent(&tenorGainSlider, false);
-    tenorGainLabel.setJustificationType(juce::Justification::centredTop);
-    addAndMakeVisible(tenorGainLabel);
-
-    // Tenor Pan Rotary
-    tenorPanSlider.setSliderStyle(juce::Slider::Rotary);
-    tenorPanSlider.setRange(0.0, 1.0, 0.01);
-    tenorPanSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 45, 20);
-    tenorPanSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-    tenorPanSlider.addListener(this);
-    addAndMakeVisible(tenorPanSlider);
-
-    //tenorPanLabel.setText("Pan", juce::dontSendNotification);
-    tenorPanLabel.setText(showPitchView ? "Pitch" : "Pan", juce::dontSendNotification);
-    tenorPanLabel.attachToComponent(&tenorPanSlider, false);
-    tenorPanLabel.setJustificationType(juce::Justification::centredTop);
-    addAndMakeVisible(tenorPanLabel);
-
-    // Tenor Pitch Toggle Button
-    //tenorPitchToggle.setButtonText("v Fifth");
-    tenorPitchToggle.setButtonText("Shift");
-    tenorPitchToggle.setClickingTogglesState(true);
-    tenorPitchToggle.addListener(this);
-    addAndMakeVisible(tenorPitchToggle);
-
-    // Tenor Section label
-    tenorSectionLabel.setButtonText("Tenor");
-    tenorSectionLabel.setClickingTogglesState(true);
-    tenorSectionLabel.addListener(this);
-
-    tenorSectionLabel.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
-    tenorSectionLabel.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
-    tenorSectionLabel.setColour(juce::TextButton::textColourOffId, juce::Colours::white);
-    tenorSectionLabel.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    addAndMakeVisible(tenorSectionLabel);
-    
-    //Alto
-    // Alto Gain Fader
-    altoGainSlider.setSliderStyle(juce::Slider::LinearVertical);
-    //altoGainSlider.setRange(0.0, 1.0, 0.01);
-    altoGainSlider.setRange(-60.0, 6.0, 0.01);
-    altoGainSlider.setNumDecimalPlacesToDisplay(1);
-    altoGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 26);
-    altoGainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-    altoGainSlider.addListener(this);
-    addAndMakeVisible(altoGainSlider);
-
-    altoGainLabel.setText("Gain", juce::dontSendNotification);
-    altoGainLabel.attachToComponent(&altoGainSlider, false);
-    altoGainLabel.setJustificationType(juce::Justification::centredTop);
-    addAndMakeVisible(altoGainLabel);
-
-    // Alto Pan Rotary
-    altoPanSlider.setSliderStyle(juce::Slider::Rotary);
-    altoPanSlider.setRange(0.0, 1.0, 0.01);
-    altoPanSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 45, 20);
-    altoPanSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-    altoPanSlider.addListener(this);
-    addAndMakeVisible(altoPanSlider);
-
-    altoPanLabel.setText(showPitchView ? "Pitch" : "Pan", juce::dontSendNotification);
-    altoPanLabel.attachToComponent(&altoPanSlider, false);
-    altoPanLabel.setJustificationType(juce::Justification::centredTop);
-    addAndMakeVisible(altoPanLabel);
-    
-    // Alto Pitch Toggle Button
-    altoPitchToggle.setButtonText("Shift");
-    altoPitchToggle.setClickingTogglesState(true);
-    altoPitchToggle.addListener(this);
-    addAndMakeVisible(altoPitchToggle);
-
-    // Alto Section label
-    altoSectionLabel.setButtonText("Alto");
-    altoSectionLabel.setClickingTogglesState(true);
-    altoSectionLabel.addListener(this);
-
-    altoSectionLabel.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
-    altoSectionLabel.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
-    altoSectionLabel.setColour(juce::TextButton::textColourOffId, juce::Colours::white);
-    altoSectionLabel.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    addAndMakeVisible(altoSectionLabel);
-    
-    //Soprano
-    // Soprano Gain Fader
-    sopranoGainSlider.setSliderStyle(juce::Slider::LinearVertical);
-    //sopranoGainSlider.setRange(0.0, 1.0, 0.01);
-    sopranoGainSlider.setRange(-60.0, 6.0, 0.01);
-    sopranoGainSlider.setNumDecimalPlacesToDisplay(1);
-    sopranoGainSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 60, 26);
-    sopranoGainSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-    sopranoGainSlider.addListener(this);
-    addAndMakeVisible(sopranoGainSlider);
-
-    sopranoGainLabel.setText("Gain", juce::dontSendNotification);
-    sopranoGainLabel.attachToComponent(&sopranoGainSlider, false);
-    sopranoGainLabel.setJustificationType(juce::Justification::centredTop);
-    addAndMakeVisible(sopranoGainLabel);
-
-    // Soprano Pan Rotary
-    sopranoPanSlider.setSliderStyle(juce::Slider::Rotary);
-    sopranoPanSlider.setRange(0.0, 1.0, 0.01);
-    sopranoPanSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 45, 20);
-    sopranoPanSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
-    sopranoPanSlider.addListener(this);
-    addAndMakeVisible(sopranoPanSlider);
-
-    sopranoPanLabel.setText(showPitchView ? "Pitch" : "Pan", juce::dontSendNotification);
-    sopranoPanLabel.attachToComponent(&sopranoPanSlider, false);
-    sopranoPanLabel.setJustificationType(juce::Justification::centredTop);
-    addAndMakeVisible(sopranoPanLabel);
-    
-    // Soprano Pitch Toggle Button
-    sopranoPitchToggle.setButtonText("Shift");
-    sopranoPitchToggle.setClickingTogglesState(true);
-    sopranoPitchToggle.addListener(this);
-    addAndMakeVisible(sopranoPitchToggle);
-
-    // Soprano Section label
-    sopranoSectionLabel.setButtonText("Soprano");
-    sopranoSectionLabel.setClickingTogglesState(true);
-    sopranoSectionLabel.addListener(this);
-
-    sopranoSectionLabel.setColour(juce::TextButton::buttonColourId, juce::Colours::transparentBlack);
-    sopranoSectionLabel.setColour(juce::TextButton::buttonOnColourId, juce::Colours::transparentBlack);
-    sopranoSectionLabel.setColour(juce::TextButton::textColourOffId, juce::Colours::white);
-    sopranoSectionLabel.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
-    addAndMakeVisible(sopranoSectionLabel);
-    
+        setupVoiceButton(voiceUIs[i].pitchToggle, "Shift");
+        setupVoiceButton(voiceUIs[i].sectionLabel, voiceNames[i], false);
+    }
+    //helper for pitch sliders
+    juce::Colour pitchPurple(0xff7fb3ff);
+    const double pitchDefaults[] = { -12, -5, 7, 12 }
+    for (int i = 0; i < 4; ++i) {
+        voiceUIs[i].pitchSlider.setRange(-12, 12, 1);
+        voiceUIs[i].pitchSlider.setSliderStyle(juce::Slider::Rotary);
+        voiceUIs[i].pitchSlider.setTextBoxStyle(juce::Slider::TextBoxBelow, false, 45, 20);
+        voiceUIs[i].pitchSlider.setColour(juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
+        voiceUIs[i].pitchSlider.setColour(juce::Slider::thumbColourId, pitchPurple);
+        voiceUIs[i].pitchSlider.setTextValueSuffix(" st");
+        voiceUIs[i].pitchSlider.setValue(pitchDefaults[i], juce::dontSendNotification);
+        voiceUIs[i].pitchSlider.addListener(this);
+        addAndMakeVisible(voiceUIs[i].pitchSlider);
+    }
+  
     auto dbText = [](double lvl)
     {
         if (lvl <= -60.0)
@@ -723,69 +600,35 @@ void LFOTremoloStarterv7AudioProcessorEditor::sliderValueChanged(juce::Slider* s
         *audioProcessor.dryWetParam = (float) dryWetSlider.getValue() / 100.0f;
         audioProcessor.dryWetParam->endChangeGesture();
     }
-    else if (slider == &bassGainSlider) {
-        audioProcessor.bassVoiceGainParam->beginChangeGesture();
-        *audioProcessor.bassVoiceGainParam = (float) bassGainSlider.getValue();
-        audioProcessor.bassVoiceGainParam->endChangeGesture();
-    }
-    else if (slider == &bassPanSlider) {
-        audioProcessor.bassVoicePanParam->beginChangeGesture();
-        *audioProcessor.bassVoicePanParam = (float) bassPanSlider.getValue();
-        audioProcessor.bassVoicePanParam->endChangeGesture();
-    }
-    else if (slider == &tenorGainSlider) {
-        audioProcessor.tenorVoiceGainParam->beginChangeGesture();
-        *audioProcessor.tenorVoiceGainParam = (float) tenorGainSlider.getValue();
-        audioProcessor.tenorVoiceGainParam->endChangeGesture();
-    }
-    else if (slider == &tenorPanSlider) {
-        audioProcessor.tenorVoicePanParam->beginChangeGesture();
-        *audioProcessor.tenorVoicePanParam = (float) tenorPanSlider.getValue();
-        audioProcessor.tenorVoicePanParam->endChangeGesture();
-    }
-    else if (slider == &altoGainSlider) {
-        audioProcessor.altoVoiceGainParam->beginChangeGesture();
-        *audioProcessor.altoVoiceGainParam = (float) altoGainSlider.getValue();
-        audioProcessor.altoVoiceGainParam->endChangeGesture();
-    }
-    else if (slider == &altoPanSlider) {
-        audioProcessor.altoVoicePanParam->beginChangeGesture();
-        *audioProcessor.altoVoicePanParam = (float) altoPanSlider.getValue();
-        audioProcessor.altoVoicePanParam->endChangeGesture();
-    }
-    else if (slider == &sopranoGainSlider) {
-        audioProcessor.sopranoVoiceGainParam->beginChangeGesture();
-        *audioProcessor.sopranoVoiceGainParam = (float) sopranoGainSlider.getValue();
-        audioProcessor.sopranoVoiceGainParam->endChangeGesture();
-    }
-    else if (slider == &sopranoPanSlider) {
-        audioProcessor.sopranoVoicePanParam->beginChangeGesture();
-        *audioProcessor.sopranoVoicePanParam = (float) sopranoPanSlider.getValue();
-        audioProcessor.sopranoVoicePanParam->endChangeGesture();
-    }
-    else if (slider == &bassPitchSlider)
-    {
-        audioProcessor.bassPitchSemitones->beginChangeGesture();
-        *audioProcessor.bassPitchSemitones = (float) bassPitchSlider.getValue();
-        audioProcessor.bassPitchSemitones->endChangeGesture();
-    }
-    else if (slider == &tenorPitchSlider)
-    {
-        audioProcessor.tenorPitchSemitones->beginChangeGesture();
-        *audioProcessor.tenorPitchSemitones = (float) tenorPitchSlider.getValue();
-        audioProcessor.tenorPitchSemitones->endChangeGesture();
-    }
-    else if (slider == &altoPitchSlider)
-    {
-        audioProcessor.altoPitchSemitones->beginChangeGesture();
-        *audioProcessor.altoPitchSemitones = (float) altoPitchSlider.getValue();
-        audioProcessor.altoPitchSemitones->endChangeGesture();
-    }
-    else if (slider == &sopranoPitchSlider)
-    {
-        audioProcessor.sopranoPitchSemitones->beginChangeGesture();
-        *audioProcessor.sopranoPitchSemitones = (float) sopranoPitchSlider.getValue();
-        audioProcessor.sopranoPitchSemitones->endChangeGesture();
+    //loop handles all voice params
+    for (int i = 0; i < 4; ++i) {
+        if (slider == &voiceUIs[i].gainSlider) {
+            auto param = getVoiceGainParam(i);
+            if (param) {
+                param->beginChangeGesture();
+                *param = (float)slider->getValue();
+                param->endChangeGesture();
+            }
+            return;
+        }
+        if (slider == &voiceUIs[i].panSlider) {
+            auto param = getVoicePanParam(i);
+            if (param) {
+                param->beginChangeGesture();
+                *param = (float)slider->getValue();
+                param->endChangeGesture();
+            }
+            return;
+        }
+        if (slider == &voiceUIs[i].pitchSlider) {
+            auto param = getVoicePitchParam(i);
+            if (param) {
+                param->beginChangeGesture();
+                *param = (float)slider->getValue();
+                param->endChangeGesture();
+            }
+            return;
+        }
     }
 }
 
@@ -981,59 +824,100 @@ void LFOTremoloStarterv7AudioProcessorEditor::timerCallback() //update slider va
 }
 void LFOTremoloStarterv7AudioProcessorEditor::refreshMuteUI() //basic custom function to set visual updates for when mute is toggled (greying out voice params)
 {
-    const bool bassMuted    = audioProcessor.getBassMuted();
-    const bool tenorMuted   = audioProcessor.getTenorMuted();
-    const bool altoMuted    = audioProcessor.getAltoMuted();
-    const bool sopranoMuted = audioProcessor.getSopranoMuted();
-
-    // match state
-    bassSectionLabel.setToggleState(bassMuted, juce::dontSendNotification);
-    tenorSectionLabel.setToggleState(tenorMuted, juce::dontSendNotification);
-    altoSectionLabel.setToggleState(altoMuted, juce::dontSendNotification);
-    sopranoSectionLabel.setToggleState(sopranoMuted, juce::dontSendNotification);
-
-    // set muted
-    bassGainSlider.setEnabled(!bassMuted);
-    bassGainLabel.setEnabled(!bassMuted);
-    bassPanSlider.setEnabled(!bassMuted);
-    bassPitchSlider.setEnabled(!bassMuted);
-    bassPitchToggle.setEnabled(!bassMuted);
-
-    tenorGainSlider.setEnabled(!tenorMuted);
-    tenorGainLabel.setEnabled(!tenorMuted);
-    tenorPanSlider.setEnabled(!tenorMuted);
-    tenorPitchSlider.setEnabled(!tenorMuted);
-    tenorPitchToggle.setEnabled(!tenorMuted);
-
-    altoGainSlider.setEnabled(!altoMuted);
-    altoGainLabel.setEnabled(!altoMuted);
-    altoPanSlider.setEnabled(!altoMuted);
-    altoPitchSlider.setEnabled(!altoMuted);
-    altoPitchToggle.setEnabled(!altoMuted);
-
-    sopranoGainSlider.setEnabled(!sopranoMuted);
-    sopranoGainLabel.setEnabled(!sopranoMuted);
-    sopranoPanSlider.setEnabled(!sopranoMuted);
-    sopranoPitchSlider.setEnabled(!sopranoMuted);
-    sopranoPitchToggle.setEnabled(!sopranoMuted);
-    
-    // set grey
-    bassGainLabel.setAlpha(bassMuted ? 0.35f : 1.0f);
-    tenorGainLabel.setAlpha(tenorMuted ? 0.35f : 1.0f);
-    altoGainLabel.setAlpha(altoMuted ? 0.35f : 1.0f);
-    sopranoGainLabel.setAlpha(sopranoMuted ? 0.35f : 1.0f);
-    
-    bassPanLabel.setAlpha(bassMuted ? 0.35f : 1.0f);
-    tenorPanLabel.setAlpha(tenorMuted ? 0.35f : 1.0f);
-    altoPanLabel.setAlpha(altoMuted ? 0.35f : 1.0f);
-    sopranoPanLabel.setAlpha(sopranoMuted ? 0.35f : 1.0f);
-    
-    bassSectionLabel.setAlpha(bassMuted ? 0.35f : 1.0f);
-    tenorSectionLabel.setAlpha(tenorMuted ? 0.35f : 1.0f);
-    altoSectionLabel.setAlpha(altoMuted ? 0.35f : 1.0f);
-    sopranoSectionLabel.setAlpha(sopranoMuted ? 0.35f : 1.0f);
-    
-    //still figuring out how to change color of textboxes attached to slider components, i.e. gain label and pan label
-    
+    for (int i = 0; i < 4; ++i) {
+        bool muted = getVoiceMutedState(i);
+        
+        voiceUIs[i].gainSlider.setEnabled(!muted);
+        voiceUIs[i].gainLabel.setEnabled(!muted);
+        voiceUIs[i].panSlider.setEnabled(!muted);
+        voiceUIs[i].pitchSlider.setEnabled(!muted);
+        voiceUIs[i].pitchToggle.setEnabled(!muted);
+        
+        float alpha = muted ? 0.35f : 1.0f;
+        voiceUIs[i].gainLabel.setAlpha(alpha);
+        voiceUIs[i].panLabel.setAlpha(alpha);
+        voiceUIs[i].sectionLabel.setAlpha(alpha);
+        
+        voiceUIs[i].sectionLabel.setToggleState(muted, juce::dontSendNotification);
+    }
     repaint();
+}
+// ============================================================
+// HELPER FUNCTION IMPLEMENTATIONS
+// ============================================================
+
+juce::AudioParameterFloat* LFOTremoloStarterv7AudioProcessorEditor::getVoiceGainParam(int voiceIndex)
+{
+    switch (voiceIndex) {
+        case 0: return audioProcessor.bassVoiceGainParam.get();
+        case 1: return audioProcessor.tenorVoiceGainParam.get();
+        case 2: return audioProcessor.altoVoiceGainParam.get();
+        case 3: return audioProcessor.sopranoVoiceGainParam.get();
+        default: return nullptr;
+    }
+}
+
+juce::AudioParameterFloat* LFOTremoloStarterv7AudioProcessorEditor::getVoicePanParam(int voiceIndex)
+{
+    switch (voiceIndex) {
+        case 0: return audioProcessor.bassVoicePanParam.get();
+        case 1: return audioProcessor.tenorVoicePanParam.get();
+        case 2: return audioProcessor.altoVoicePanParam.get();
+        case 3: return audioProcessor.sopranoVoicePanParam.get();
+        default: return nullptr;
+    }
+}
+
+juce::AudioParameterFloat* LFOTremoloStarterv7AudioProcessorEditor::getVoicePitchParam(int voiceIndex)
+{
+    switch (voiceIndex) {
+        case 0: return audioProcessor.bassPitchSemitones.get();
+        case 1: return audioProcessor.tenorPitchSemitones.get();
+        case 2: return audioProcessor.altoPitchSemitones.get();
+        case 3: return audioProcessor.sopranoPitchSemitones.get();
+        default: return nullptr;
+    }
+}
+
+juce::AudioParameterFloat* LFOTremoloStarterv7AudioProcessorEditor::getPitchEnabledParam(int voiceIndex)
+{
+    switch (voiceIndex) {
+        case 0: return audioProcessor.bassPitchEnabledParam.get();
+        case 1: return audioProcessor.tenorPitchEnabledParam.get();
+        case 2: return audioProcessor.altoPitchEnabledParam.get();
+        case 3: return audioProcessor.sopranoPitchEnabledParam.get();
+        default: return nullptr;
+    }
+}
+
+juce::AudioParameterFloat* LFOTremoloStarterv7AudioProcessorEditor::getMuteParam(int voiceIndex)
+{
+    switch (voiceIndex) {
+        case 0: return audioProcessor.bassMuteParam.get();
+        case 1: return audioProcessor.tenorMuteParam.get();
+        case 2: return audioProcessor.altoMuteParam.get();
+        case 3: return audioProcessor.sopranoMuteParam.get();
+        default: return nullptr;
+    }
+}
+
+bool LFOTremoloStarterv7AudioProcessorEditor::getVoiceMutedState(int voiceIndex)
+{
+    switch (voiceIndex) {
+        case 0: return audioProcessor.getBassMuted();
+        case 1: return audioProcessor.getTenorMuted();
+        case 2: return audioProcessor.getAltoMuted();
+        case 3: return audioProcessor.getSopranoMuted();
+        default: return false;
+    }
+}
+
+void LFOTremoloStarterv7AudioProcessorEditor::setVoiceMuted(int voiceIndex, bool muted)
+{
+    switch (voiceIndex) {
+        case 0: audioProcessor.setBassMuted(muted); break;
+        case 1: audioProcessor.setTenorMuted(muted); break;
+        case 2: audioProcessor.setAltoMuted(muted); break;
+        case 3: audioProcessor.setSopranoMuted(muted); break;
+    }
 }
