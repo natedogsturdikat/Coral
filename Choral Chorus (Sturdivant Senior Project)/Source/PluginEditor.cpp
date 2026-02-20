@@ -299,11 +299,21 @@ LFOTremoloStarterv7AudioProcessorEditor::LFOTremoloStarterv7AudioProcessorEditor
     sopranoSectionLabel.setColour(juce::TextButton::textColourOnId, juce::Colours::white);
     addAndMakeVisible(sopranoSectionLabel);
     
+    //function makes sure dB label shows - and + suffixes, and -inf at minimum range
     auto dbText = [](double lvl)
     {
-        if (lvl <= -60.0)
+        if (lvl <= -59.9)   // bottom of slider
+        {
             return juce::String("-inf");
-        return juce::String(lvl, 1) + " dB";
+        }
+        else if (lvl > 0.0)
+        {
+            return "+" + juce::String(lvl, 1) + " dB";
+        }
+        else
+        {
+            return juce::String(lvl, 1) + " dB";
+        }
     };
 
     bassGainSlider.textFromValueFunction = dbText;
