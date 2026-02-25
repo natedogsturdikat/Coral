@@ -19,3 +19,26 @@ Pitch: Each voice has a pitch control ranging from -12 to +12 semitones, with a 
 Extras:
 -Click the text label of any voice to mute it, this will turn the GUI elements for that voice grey until unmuted
 
+Stereo In
+  |
+  +--> Dry (stereo) ---------------------------------------------\
+  |                                                               \
+  |                                                                \
+  +--> Wet Input: Stereo → Mono                                     \
+        |                                                            \
+        v                                                             v
+      Voice Processing (×4 parallel) --------------------------->  Dry/Wet Mix  --->  Soft Clip  --->  Out (stereo)
+        |                                                          ^
+        |                                                          |
+        |   Pitch Shift?                                           |
+        |            |                                             |
+        |            v                                             |
+        |         Chorus  <--- Rate / Depth (master)               |
+        |            |                                             |
+        |            v                                             |
+        |         Width   <--- Depth (master)                      |
+        |            |                                             |
+        |            v                                             |
+        |      Gain (dB) → Pan → Mute?                             |
+        |                                                          |
+        +--> Sum wetL / wetR---------------------------------------|
