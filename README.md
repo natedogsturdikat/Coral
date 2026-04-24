@@ -46,5 +46,5 @@ Stereo In
 
 Coming Soon:
 -Pitch view will replace the gain sliders with formant control per voice. TBD on how this will be implemented to minimize cpu impact, will be linkable to pitch shift or manually controllable
--GUI overhaul once I find a way to make frutiger aero graphics
+-GUI overhaul once I find a way to make better graphics
 -Chorus bypass toggle
